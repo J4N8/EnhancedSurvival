@@ -1,0 +1,7 @@
+name: EnhancedSurvival
+version: ${project.version}
+main: j4n8.enhancedsurvival.EnhancedSurvival
+api-version: 1.17
+prefix: EnhancedSurvival
+authors: [ J4N8 ]
+description: Adds improved survival experience for servers
