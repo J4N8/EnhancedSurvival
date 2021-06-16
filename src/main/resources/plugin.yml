@@ -9,3 +9,9 @@ commands:
   bed:
     description: Teleports player to their bed's spawn point.
     usage: /<command>
+  tpa:
+    description: Requests teleport to player.
+    usage: /<command> <player>
+  tpaccept:
+    description: Accepts teleport request.
+    usage: /<command>

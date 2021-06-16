@@ -14,6 +14,8 @@ public final class EnhancedSurvival extends JavaPlugin {
 
         //Register commands
         this.getCommand("bed").setExecutor(new CommandBed());
+        this.getCommand("tpa").setExecutor(new CommandTpa());
+        this.getCommand("tpaccept").setExecutor(new CommandTpa());
 
 
         getLogger().info("EnhancedSurvival plugin enabled!");
