@@ -12,6 +12,10 @@ public final class EnhancedSurvival extends JavaPlugin {
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new Graves(), this);
 
+        //Register commands
+        this.getCommand("bed").setExecutor(new CommandBed());
+
+
         getLogger().info("EnhancedSurvival plugin enabled!");
     }
 

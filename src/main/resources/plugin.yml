@@ -1,7 +1,11 @@
 name: EnhancedSurvival
-version: 1.0.5
+version: ${project.version}
 main: j4n8.enhancedsurvival.EnhancedSurvival
 api-version: 1.17
 prefix: EnhancedSurvival
 authors: [ J4N8 ]
 description: Adds improved survival experience for servers
+commands:
+  bed:
+    description: Teleports player to their bed's spawn point.
+    usage: /<command>
