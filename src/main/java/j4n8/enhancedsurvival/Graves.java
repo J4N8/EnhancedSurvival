@@ -30,6 +30,9 @@ public class Graves implements Listener {
         if (player.getInventory().isEmpty()){//Prevents empty inventory error
             return;
         }
+        if (event.getKeepInventory()){//Prevents spawn if keepinventory rule is on
+            return;
+        }
 
         ItemStack[] death_items = Stream.of(player.getInventory().getContents())
                 .filter(Objects::nonNull) //Filter all non null values (removes empty slots)
@@ -41,6 +44,7 @@ public class Graves implements Listener {
         event.getDrops().clear();
         location.getBlock().setType(Material.PLAYER_HEAD, false);
         grave_locations.put(location, death_items);
+        //TODO: Give player item (flower?) that says the death coordinates
     }
 
     @EventHandler
