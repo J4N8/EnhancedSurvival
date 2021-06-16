@@ -50,25 +50,14 @@ public class Graves implements Listener {
             if (e.getAction() == Action.RIGHT_CLICK_BLOCK){
                 Block block = e.getClickedBlock();
                 if (block.getType() == Material.PLAYER_HEAD){
-                    //Get grave items based on location
+                    //Get grave items based on location and drop them
                     ItemStack[] items = grave_locations.get(block.getLocation());
-                    //Create the inventory according to amount of items
-                    Inventory inventory;
-                    if (items.length <= 9){ //TODO: set inventory size based on items in inventory
-                        inventory = Bukkit.createInventory(null, 9, "Small inventory");
+                    Player player = e.getPlayer();
+                    for (ItemStack item : items){
+                        player.getWorld().dropItem(player.getLocation(), item);
                     }
-                    else if (items.length <= 27){
-                        inventory = Bukkit.createInventory(null, 27, "Medium inventory");
-                    }
-                    else{
-                        inventory = Bukkit.createInventory(null, 54, "Large inventory");
-                    }
-                    //Add items to inventory and open it
-                    inventory.setContents(items);
-                    e.getPlayer().openInventory(inventory);
-
-                    //TODO: Give player the items automatically on right click. Make them drop if inventory full
-                    //TODO: remove inventory from grave_locations
+                    grave_locations.remove(block.getLocation());
+                    block.setType(Material.AIR);
                 }
             }
         }
