@@ -1,6 +1,5 @@
 package j4n8.enhancedsurvival;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -10,12 +9,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.BlockInventoryHolder;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class Graves implements Listener {
@@ -44,7 +42,9 @@ public class Graves implements Listener {
         event.getDrops().clear();
         location.getBlock().setType(Material.PLAYER_HEAD, false);
         grave_locations.put(location, death_items);
-        //TODO: Give player item (flower?) that says the death coordinates
+
+        //Send player the grave location
+        player.sendMessage("Grave location: X: " + location.getBlockX() + " Y: " + location.getBlockY() + " Z: " + location.getBlockZ());
     }
 
     @EventHandler

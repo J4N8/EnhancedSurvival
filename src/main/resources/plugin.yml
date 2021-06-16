@@ -1,5 +1,5 @@
 name: EnhancedSurvival
-version: ${project.version}
+version: 1.0.5
 main: j4n8.enhancedsurvival.EnhancedSurvival
 api-version: 1.17
 prefix: EnhancedSurvival
