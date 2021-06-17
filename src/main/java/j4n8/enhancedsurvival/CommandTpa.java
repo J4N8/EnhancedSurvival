@@ -1,6 +1,7 @@
 package j4n8.enhancedsurvival;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -28,8 +29,8 @@ public class CommandTpa implements CommandExecutor {
                         if (!player.getName().equals(player2.getName())) {
                             if (!getTpa().containsKey(player)) {
                                 getTpa().put(player, player2);
-
                                 player2.sendMessage("[Teleport] " + player.getName() + " has requested to teleport to you.");
+                                player2.playSound(player2.getLocation(), Sound.BLOCK_ANVIL_LAND, 1, 1);
                             } else {
                                 player.sendMessage("You have already requested teleport to " + player2.getName());
                             }
