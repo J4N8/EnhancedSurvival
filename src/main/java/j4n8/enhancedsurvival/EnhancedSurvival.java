@@ -11,6 +11,7 @@ public final class EnhancedSurvival extends JavaPlugin {
         //Register events
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new Graves(), this);
+        pm.registerEvents(new MultiplayerSleep(), this);
 
         //Register commands
         this.getCommand("bed").setExecutor(new CommandBed());
