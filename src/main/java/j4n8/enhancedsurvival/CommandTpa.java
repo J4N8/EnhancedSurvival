@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Implements the /tpa and /tpaccept commands
+ */
 public class CommandTpa implements CommandExecutor {
 
     /**
@@ -26,18 +29,39 @@ public class CommandTpa implements CommandExecutor {
      */
     static HashMap<UUID, UUID> tpaRequests = new HashMap<>();
 
+    /**
+     * Prints the command usage to this player
+     *
+     * @param sender the command executor
+     */
+    private static void displayCommandUsage(CommandSender sender) {
+        sender.sendMessage(TP_PREFIX + ChatColor.BOLD + "Usage:\n" + ChatColor.RESET
+                + TP_PREFIX + ChatColor.RED + "/tpa " + ChatColor.RESET + "<player>\n"
+                + TP_PREFIX + ChatColor.RED + "/tpaccept ");
+    }
+
+    /**
+     * Main command process
+     */
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!(sender instanceof Player))
-            return true;    // todo: print "this command can only be used by players...
-        if (!cmd.getName().matches("(?i)tpa|tpaccept"))
-            return true;    // todo: invalid syntax - print usage
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(TP_PREFIX + "This command can only be used by players.");
+            return true;
+        } else if (!cmd.getName().matches("(?i)tpa|tpaccept")) {
+            displayCommandUsage(sender);
+            return true;
+        }
 
         Player player = ((Player) sender).getPlayer();
         assert player != null;
-        if (cmd.getName().equalsIgnoreCase("tpa"))
+        if (cmd.getName().equalsIgnoreCase("tpa")) {
+            if (args.length < 1) {
+                displayCommandUsage(player);
+                return true;
+            }
             processTpa(player, args[0]);
-        else if (cmd.getName().equalsIgnoreCase("tpaccept"))
+        } else if (cmd.getName().equalsIgnoreCase("tpaccept"))
             processTpAccept(player);
         return true;
     }
@@ -70,7 +94,7 @@ public class CommandTpa implements CommandExecutor {
         }
 
         tpaRequests.put(player.getUniqueId(), destPlayer.getUniqueId());
-        player.sendMessage(TP_PREFIX + " Request sent to " + ChatColor.RED + destPlayer.getName() + "!");
+        player.sendMessage(TP_PREFIX + "Request sent to " + ChatColor.RED + destPlayer.getName() + "!");
         destPlayer.sendMessage(TP_PREFIX + ChatColor.RED + player.getName()
                 + ChatColor.RESET + " has requested to teleport to you.");
         destPlayer.playSound(destPlayer.getLocation(), Sound.BLOCK_ANVIL_LAND, 1, 1);
