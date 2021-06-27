@@ -19,6 +19,9 @@ public class EasyCropCollect implements Listener {
     @EventHandler
     public void OnCropRightClick(PlayerInteractEvent e) {
         Block block = e.getClickedBlock();
+        if (block == null) {
+            return;
+        }
         if (!crop_types.contains(block.getType())) {
             return; //Not a crop
         }
