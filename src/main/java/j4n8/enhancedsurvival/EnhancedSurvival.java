@@ -1,5 +1,6 @@
 package j4n8.enhancedsurvival;
 
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -8,16 +9,31 @@ public final class EnhancedSurvival extends JavaPlugin {
     @Override
     public void onEnable() {
         // Plugin startup logic
-        //Register events
+        saveDefaultConfig();
+        FileConfiguration config = getConfig();
+
+        //Plugin manager
         PluginManager pm = getServer().getPluginManager();
-        pm.registerEvents(new Graves(), this);
-        pm.registerEvents(new MultiplayerSleep(), this);
 
-        //Register commands
-        this.getCommand("bed").setExecutor(new CommandBed());
-        this.getCommand("tpa").setExecutor(new CommandTpa());
-        this.getCommand("tpaccept").setExecutor(new CommandTpa());
+        //Events config
+        if (config.getBoolean("graves")) {
+            pm.registerEvents(new Graves(), this);
+        }
+        if (config.getBoolean("multiplayer_sleep")) {
+            pm.registerEvents(new MultiplayerSleep(), this);
+        }
+        if (config.getBoolean("easy-crop-collect")) {
+            pm.registerEvents(new EasyCropCollect(), this);
+        }
 
+        //Commands config
+        if (config.getBoolean("bed")) {
+            this.getCommand("bed").setExecutor(new CommandBed());
+        }
+        if (config.getBoolean("tpa")) {
+            this.getCommand("tpa").setExecutor(new CommandTpa());
+            this.getCommand("tpaccept").setExecutor(new CommandTpa());
+        }
 
         getLogger().info("EnhancedSurvival plugin enabled!");
     }
