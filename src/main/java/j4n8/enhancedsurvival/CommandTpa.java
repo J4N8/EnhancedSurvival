@@ -12,66 +12,118 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Implements the /tpa and /tpaccept commands
+ */
 public class CommandTpa implements CommandExecutor {
 
-    //           Player1 Player2
-    static HashMap<UUID, UUID> tpa = new HashMap<>();
+    /**
+     * Purple {@code [Teleport]} command prefix text
+     */
+    private static final String TP_PREFIX = "§5[Teleport] §r";
 
+    /**
+     * A {@link HashMap} containing /tpa requests where the key is
+     * the UUID of the player who ran the command and the value is
+     * the UUID of the destination player
+     */
+    static HashMap<UUID, UUID> tpaRequests = new HashMap<>();
+
+    /**
+     * Prints the command usage to this player
+     *
+     * @param sender the command executor
+     */
+    private static void displayCommandUsage(CommandSender sender) {
+        sender.sendMessage(TP_PREFIX + ChatColor.BOLD + "Usage:\n" + ChatColor.RESET
+                + TP_PREFIX + ChatColor.RED + "/tpa " + ChatColor.RESET + "<player>\n"
+                + TP_PREFIX + ChatColor.RED + "/tpaccept ");
+    }
+
+    /**
+     * Main command process
+     */
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(TP_PREFIX + "This command can only be used by players.");
+            return true;
+        } else if (!cmd.getName().matches("(?i)tpa|tpaccept")) {
+            displayCommandUsage(sender);
+            return true;
+        }
+
+        Player player = ((Player) sender).getPlayer();
+        assert player != null;
         if (cmd.getName().equalsIgnoreCase("tpa")) {
-            if (sender instanceof Player) {
-                Player player = (Player) sender;
-                if (args.length == 1) {
-                    Player player2 = Bukkit.getPlayer(args[0]);
-                    if (player2 != null && player2.isOnline()) {
-                        if (!player.getName().equals(player2.getName())) {
-                            if (!tpa.containsKey(player.getUniqueId()) && !tpa.containsValue(player2.getUniqueId())) {
-                                tpa.put(player.getUniqueId(), player2.getUniqueId());
-                                player.sendMessage(ChatColor.DARK_PURPLE + "[Teleport]" + ChatColor.RESET + " Request sent to " + ChatColor.RED + player2.getName() + "!");
-                                player2.sendMessage(ChatColor.DARK_PURPLE + "[Teleport] " + ChatColor.RED + player.getName() + ChatColor.RESET + " has requested to teleport to you.");
-                                player2.playSound(player2.getLocation(), Sound.BLOCK_ANVIL_LAND, 1, 1);
-                            } else {
-                                player.sendMessage(ChatColor.DARK_PURPLE + "[Teleport] " + ChatColor.RESET + "You have already requested teleport to " + ChatColor.RED + player2.getName());
-                            }
-                        } else {
-                            player.sendMessage(ChatColor.DARK_PURPLE + "[Teleport] " + "You can't teleport to yourself!");
-                        }
-                    } else {
-                        player.sendMessage(ChatColor.DARK_PURPLE + "[Teleport] " + ChatColor.RED + args[0] + ChatColor.RESET + " is not online.");
-                    }
-                } else {
-                    return false;
-                }
+            if (args.length < 1) {
+                displayCommandUsage(player);
+                return true;
             }
-            return true;
-        }
-        if (cmd.getName().equalsIgnoreCase("tpaccept")) {
-            if (sender instanceof Player) {
-                Player player = (Player) sender;
-                Player player1 = null;
-                if (tpa.containsValue(player.getUniqueId())) {
-                    for (Map.Entry<UUID, UUID> entry : tpa.entrySet()) {
-                        if (entry.getValue().equals(player.getUniqueId())) {
-                            player1 = Bukkit.getPlayer(entry.getKey());
-                            break;
-                        }
-                    }
-                    if (player1 != null && player1.isOnline()) {
-                        player1.teleport(player.getLocation());
-                        player1.sendMessage(ChatColor.DARK_PURPLE + "[Teleport] " + ChatColor.RESET + "You've been teleported to " + ChatColor.RED + player.getName());
-                        player.sendMessage("You have accepted teleport from " + player1.getName());
-                        tpa.remove(player1.getUniqueId(), player.getUniqueId());
-                    } else {
-                        player.sendMessage(ChatColor.DARK_PURPLE + "[Teleport] " + ChatColor.RESET + "This player is no longer online!");
-                        tpa.remove(player1.getUniqueId(), player.getUniqueId());
-                    }
-                } else {
-                    player.sendMessage(ChatColor.DARK_PURPLE + "[Teleport] " + ChatColor.RESET + "You don't have any teleport requests.");
-                }
-            }
-            return true;
-        }
-        return false;
+            processTpa(player, args[0]);
+        } else if (cmd.getName().equalsIgnoreCase("tpaccept"))
+            processTpAccept(player);
+        return true;
     }
+
+    /**
+     * Processes the /tpa command
+     *
+     * @param player          the command executor
+     * @param specifiedPlayer the specified destination player
+     */
+    private void processTpa(Player player, String specifiedPlayer) {
+        if (specifiedPlayer.isEmpty())
+            return; // maybe print usage or something
+
+        Player destPlayer = Bukkit.getPlayer(specifiedPlayer);
+        if (destPlayer == null || !destPlayer.isOnline()) {
+            player.sendMessage(TP_PREFIX + ChatColor.RED + specifiedPlayer + ChatColor.RESET + " is not online.");
+            return;
+        }
+
+        if (player.getName().equalsIgnoreCase(destPlayer.getName())) {
+            player.sendMessage(TP_PREFIX + "You can't teleport to yourself!");
+            return;
+        }
+
+        if (tpaRequests.containsKey(player.getUniqueId()) || tpaRequests.containsValue(destPlayer.getUniqueId())) {
+            player.sendMessage(TP_PREFIX + "You have already requested teleport to "
+                    + ChatColor.RED + destPlayer.getName());
+            return;
+        }
+
+        tpaRequests.put(player.getUniqueId(), destPlayer.getUniqueId());
+        player.sendMessage(TP_PREFIX + "Request sent to " + ChatColor.RED + destPlayer.getName() + "!");
+        destPlayer.sendMessage(TP_PREFIX + ChatColor.RED + player.getName()
+                + ChatColor.RESET + " has requested to teleport to you.");
+        destPlayer.playSound(destPlayer.getLocation(), Sound.BLOCK_ANVIL_LAND, 1, 1);
+    }
+
+    /**
+     * Processes the /tpaccept command
+     *
+     * @param player the command executor
+     */
+    private void processTpAccept(Player player) {
+        if (!tpaRequests.containsValue(player.getUniqueId())) {
+            player.sendMessage(TP_PREFIX + "You don't have any teleport requests.");
+            return;
+        }
+
+        Player player1 = null;
+        for (Map.Entry<UUID, UUID> entry : tpaRequests.entrySet())
+            if (entry.getValue().equals(player.getUniqueId())) {
+                player1 = Bukkit.getPlayer(entry.getKey());
+                tpaRequests.remove(entry.getKey(), entry.getValue());
+                break;
+            }
+
+        if (player1 != null && player1.isOnline()) {
+            player1.teleport(player.getLocation());
+            player1.sendMessage(TP_PREFIX + "You've been teleported to " + ChatColor.RED + player.getName());
+            player.sendMessage("You have accepted teleport from " + player1.getName());
+        } else player.sendMessage(TP_PREFIX + "This player is no longer online!");
+    }
+
 }
